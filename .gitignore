@@ -6,6 +6,11 @@ venv_*/
 .vs/
 .vscode/
 
+data/
+env/sandbox/
+diff-gaussian-rasterization/
+imgs/
+
 tmp_*
 data?
 data??

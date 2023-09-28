@@ -1,0 +1,82 @@
+Bootstrap: docker
+From: nvidia/cuda:11.6.2-devel-ubuntu20.04
+Stage: build
+
+%setup
+    ############################################
+    # setup. コンテナ外で行われるコマンド
+    ############################################
+
+%files
+    ############################################
+    # files ファイルのマウント
+    ############################################
+    ./entrypoint.sh /
+
+%environment
+    ############################################
+    # enviroments 環境変数の定義
+    ############################################
+    export TZ=Asia/Tokyo 
+    export LC_ALL=C
+
+%post
+    ############################################
+    # post ファイルのダウロードとか，色々．基本的にここに書く
+    ############################################
+    # aptでインストールする場合，入力待ちを避けるために下記のように書く
+    # DEBIAN_FRONTEND=noninteractive && apt install -y hogehoge ...
+
+    # essential  
+    apt update
+    DEBIAN_FRONTEND=noninteractive apt install -y lsb-release wget curl git nano gnupg build-essential software-properties-common
+    mkdir -p /run/user/1000
+    mkdir -p /var/lib/dbus
+    
+    # avoid freezing
+    DEBIAN_FRONTEND=noninteractive apt install -y tzdata keyboard-configuration
+
+    # python3.8
+    DEBIAN_FRONTEND=noninteractive apt install -y python3-dev
+    ln -sf /usr/bin/python3 /usr/bin/python
+    curl -kL https://bootstrap.pypa.io/pip/get-pip.py | python
+
+    # install opengl
+    apt-get install -y mesa-common-dev libegl1-mesa-dev libgles2-mesa-dev
+    apt-get install -y mesa-utils
+    apt update 
+    apt upgrade -y 
+
+    # for solving 'OpenGL 4.4 or later'
+    apt-get install ubuntu-drivers-common
+
+    # install available nvidia-driver according to 'ubuntu-drivers devices'
+    apt install nvidia-driver-470
+
+%runscript
+    ############################################
+    # runscript. singularity run で実行するコマンド
+    ############################################
+
+%startscript
+    ############################################
+    # startscript. singularity insntance startで実行するコマンド 
+    ############################################
+
+%test
+    ############################################
+    # test. テスト時に実行するコマンド
+    ############################################
+
+
+%labels
+    ############################################
+    # label. ラベル
+    ############################################
+    Author Yukiya Fukuda
+    Version v0.0.1
+
+%help
+    ############################################
+    # help. ヘルプ
+    ############################################
